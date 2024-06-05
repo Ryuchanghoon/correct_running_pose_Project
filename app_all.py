@@ -94,9 +94,13 @@ def predict(data, model, expected_features):
     df['prediction'] = predictions
     return df
 
-st.title("Mediapipe Pose Estimation and Model Prediction")
+st.title("런닝 전문가")
 
-uploaded_file = st.file_uploader("비디오를 선택하세요...", type=["mp4", "avi", "mov", "mkv"])
+st.subheader('당신의 런닝 자세를 전문가 수준으로')
+
+uploaded_file = st.file_uploader("비디오를 선택하세요", type=["mp4", "avi", "mov", "mkv"])
+
+st.text('정확한 분석을 위해 왼쪽에서 찍은 사진을 올려주세요!')
 
 if uploaded_file is not None:
     tfile = tempfile.NamedTemporaryFile(delete=False)
@@ -109,6 +113,12 @@ if uploaded_file is not None:
     frame_rate = cap.get(cv2.CAP_PROP_FPS) 
     frame_interval = int(frame_rate * interval)  
     coordinates = []
+
+
+    info_placeholder = st.empty()#
+    analyze_button = st.button('분석하기')
+    info_placeholder.info('분석하는데 시간이 좀 걸려요. 버튼 누르고 잠시 기다려 주세요.') ##
+
 
     with mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
         while cap.isOpened():
@@ -173,22 +183,27 @@ if uploaded_file is not None:
     cap.release()
     tfile.close()
 
- 
-    if st.button('분석하기'):
-        
+    if analyze_button:
+        # 무릎 모델 predict
         results_knee = predict(coordinates, knee_model, expected_features_knee)
-        st.write("무릎 모델 예측 결과:")
-        for index, row in results_knee.iterrows():
-            st.write(f"Frame: {row['frame']}, Prediction: {row['prediction']}")
+        knee_issues = results_knee['prediction'].isin([0]).any()
 
-        
+        # 척추 모델 predict
         results_spine = predict(coordinates, spine_model, expected_features_spine)
-        st.write("척추 모델 예측 결과:")
-        for index, row in results_spine.iterrows():
-            st.write(f"Frame: {row['frame']}, Prediction: {row['prediction']}")
+        spine_issues = results_spine['prediction'].isin([0]).any()
 
-        
+        # 팔 모델 predict
         results_arm = predict(coordinates, arm_model, expected_features_arm)
-        st.write("팔 모델 예측 결과:")
-        for index, row in results_arm.iterrows():
-            st.write(f"Frame: {row['frame']}, Prediction: {row['prediction']}")
+        arm_issues = results_arm['prediction'].isin([0]).any()
+
+        info_placeholder.empty()
+
+
+        if spine_issues:
+            st.error('등과 후두부가 일직선이 되도록 해야 해요. 어깨와 가슴을 펴세요.')
+        if arm_issues:
+            st.error('팔꿈치의 각도는 고정시키지 않고 탄력성을 줘야 해요. 팔을 뒤로 친다는 생각으로 달려 보세요.')
+        if knee_issues:
+            st.error('무릎을 너무 많이 올리면 에너지 소모가 심해요. 적당히 편안한 보폭을 유지하고, 착지 시 무릎을 살짝 굽혀서 충격을 최소화 하세요')
+        if not (spine_issues or arm_issues or knee_issues):
+            st.success('올바른 자세로 잘 뛰고 있군요! 아주 좋습니다')
