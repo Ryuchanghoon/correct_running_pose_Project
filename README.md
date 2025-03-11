@@ -9,7 +9,7 @@
 Running Posture 프로젝트는 사용자의 런닝 자세를 분석하여 실시간 피드백을 제공하는 서비스 입니다.
 </br> 관절 추출 기술을 기반으로 팔 각도, 무릎 각도, 척추 각도 등의 값을 고려하여 팔치기, 다리 보폭, 상체 각도를 분석합니다.
 
-<img src="https://github.com/user-attachments/assets/de20e27e-2343-4524-8739-167f834af2b1" width="30%" height="500px" />
+<img src="https://github.com/user-attachments/assets/1e650b01-f548-4cd5-8741-e709d3a6d754" width="30%" height="500px" />
 <img src="https://github.com/user-attachments/assets/c9e23923-4e18-4f2b-a8c7-a1464c91b919" width="30%" height="500px" />
 
 </br> 이를 통해 올바른 자세를 유지할 수 있도록 도와주며, 사용자가 보다 효울적이고 안전하게 런닝할 수 있도록 지원합니다.
